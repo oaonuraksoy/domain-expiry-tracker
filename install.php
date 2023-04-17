@@ -1,80 +1,80 @@
 <?php 
-require_once('process/db.php');
+    require_once('process/db.php');
 
-try {
-    $conn = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpwd);
-    // set the PDO error mode to exception
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //echo "Bağlantı başarılı";
-}
-catch(PDOException $e) {
-    echo "Bağlantı hatası: " . $e->getMessage();
-}
-
-//test
-if (isset($_POST["kaydet"])) {
     try {
-        $userMail = $_POST['userMail'];
-        $userPwd = md5($_POST['userPwd']);
-
-        $sql = "INSERT INTO users (userMail, userPwd) VALUES (:userMail, :userPwd)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':userMail', $userMail);
-        $stmt->bindParam(':userPwd', $userPwd);
-        $stmt->execute();
-
-        // kullanıcı eklendikten sonra index.php'ye yönlendir
-        header('Location: index.php');
-        exit;
+        $conn = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpwd);
+        // set the PDO error mode to exception
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        //echo "Bağlantı başarılı";
     }
     catch(PDOException $e) {
         echo "Bağlantı hatası: " . $e->getMessage();
     }
-
-    $conn = null;
-}
-//test
-$table_name = "users";
-$stmt = $conn->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '$dbname') AND (TABLE_NAME = '$table_name')");
-
-$tables = array("users", "domains");
-
-foreach($tables as $table_name) {
-    $stmt = $conn->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '$dbname') AND (TABLE_NAME = '$table_name')");
-
-    if($stmt->fetchColumn() == 0) {
-        $sql = "";
-        switch($table_name) {
-            case "users":
-                $sql = "CREATE TABLE $table_name (
-                            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                            userMail VARCHAR(50) NOT NULL,
-                            userPwd VARCHAR(50) NOT NULL
-                        )";
-                break;
-            case "domains":
-                $sql = "CREATE TABLE $table_name (
-                            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                            domainName VARCHAR(50) NOT NULL,
-                            domainExpiry DATE NOT NULL,
-                            domainDrop DATE NOT NULL
-                        )";
-                break;
-            default:
-                echo "Bilinmeyen tablo adı: " . $table_name;
-                break;
-        }
-
-        if(!empty($sql)) {
+    
+    //test
+    if (isset($_POST["kaydet"])) {
+        try {
+            $userMail = $_POST['userMail'];
+            $userPwd = md5($_POST['userPwd']);
+    
+            $sql = "INSERT INTO users (userMail, userPwd) VALUES (:userMail, :userPwd)";
             $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':userMail', $userMail);
+            $stmt->bindParam(':userPwd', $userPwd);
             $stmt->execute();
-          //  echo "Tablo oluşturuldu: " . $table_name . "<br>";
+    
+            // kullanıcı eklendikten sonra index.php'ye yönlendir
+            header('Location: index.php');
+            exit;
+        }
+        catch(PDOException $e) {
+            echo "Bağlantı hatası: " . $e->getMessage();
+        }
+    
+        $conn = null;
+    }
+    //test
+    $table_name = "users";
+    $stmt = $conn->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '$dbname') AND (TABLE_NAME = '$table_name')");
+    
+    $tables = array("users", "domains");
+    
+    foreach($tables as $table_name) {
+        $stmt = $conn->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '$dbname') AND (TABLE_NAME = '$table_name')");
+    
+        if($stmt->fetchColumn() == 0) {
+            $sql = "";
+            switch($table_name) {
+                case "users":
+                    $sql = "CREATE TABLE $table_name (
+                                id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                userMail VARCHAR(50) NOT NULL,
+                                userPwd VARCHAR(50) NOT NULL
+                            )";
+                    break;
+                case "domains":
+                    $sql = "CREATE TABLE $table_name (
+                                id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                domainName VARCHAR(50) NOT NULL,
+                                domainExpiry VARCHAR(80) NOT NULL,
+                                domainDrop VARCHAR(80) NOT NULL
+                            )";
+                    break;
+                default:
+                    echo "Bilinmeyen tablo adı: " . $table_name;
+                    break;
+            }
+    
+            if(!empty($sql)) {
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+              //  echo "Tablo oluşturuldu: " . $table_name . "<br>";
+            }
+        }
+        else {
+            //echo "Tablo zaten var: " . $table_name . "<br>";
         }
     }
-    else {
-        //echo "Tablo zaten var: " . $table_name . "<br>";
-    }
-}
 ?>
 
 <!DOCTYPE html>

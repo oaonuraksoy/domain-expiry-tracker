@@ -90,7 +90,27 @@ require_once('header.php');
 
 <br>
 <br>
+
+<!-- <form action="/process/function.php" method="post">
+
+          <div class="form-group">
+            <label for="domainName">Alan Adı</label>
+            <input type="text" class="form-control" id="domainName" name="domainName" required>
+          </div>
+          <div class="form-group">
+        <input type="submit" class="btn btn-success" id="addDomainButton"></input>
+      </div>
+
+
+</form> -->
+
+
 <?php 
+
+
+
+
+
 // $domain = "onuraksoy.com.tr";
 
 // echo $data= $domainTable->getWhoisData($domain);
@@ -114,7 +134,9 @@ require_once('header.php');
 // } else {
 //   echo "$days_left gün kaldı";
 // }
-// ?>
+
+
+?>
 <!-- Buraya -->
 
 
