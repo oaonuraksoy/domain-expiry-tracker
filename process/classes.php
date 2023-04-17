@@ -12,7 +12,7 @@ class Login {
         $this->userPwd = $userPwd;
 
         // Veritabanı bağlantısı için PDO nesnesi oluşturuyoruz.
-        $dsn = 'mysql:host=$dbhost;dbname=$dbname';
+        $dsn = 'mysql:host='.$dbhost.';dbname='.$dbname.'';
         $username = $dbuser;
         $password = $dbpwd;
 
@@ -20,7 +20,8 @@ class Login {
           $this->pdo = new PDO($dsn, $username, $password);
           $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       } catch (PDOException $e) {
-          header("Location: ../install.php");
+          // header("Location: ../install.php");
+          echo $e->getMessage();
           exit();
       }
     }

@@ -127,7 +127,13 @@ $(document).ready(function() {
 
 </script>
 
-
+<?php 
+if (file_exists('install.php')) { ?>
+  <script>alert("Uyarı: Install.php Dosyasını silmeniz gerekmektedir.");</script>
+  
+  
+<?php }
+?>
 
 </body>
 </html>

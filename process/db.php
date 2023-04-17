@@ -1,9 +1,7 @@
-<?php 
-//veritabanı bilgileri
+<?php
 global $dbhost, $dbname, $dbuser, $dbpwd;
-$dbhost = "";
-$dbname = "";
-$dbuser = "";
-$dbpwd = "";
-
+$dbhost='localhost';
+$dbname='detDB';
+$dbuser='root';
+$dbpwd='';
 ?>
