@@ -1,0 +1,23 @@
+$domain = "onuraksoy.com.tr";
+
+echo $data= $domainTable->getWhoisData($domain);
+
+echo "<br><br>".$uzanti = $domainTable->getDomainExtension($domain);
+echo "<br><br>".$sonuc = $domainTable->getExpirationDate($data,$uzanti);
+$date = $sonuc;
+$formatted_date = date('d.m.Y', strtotime($date));
+echo "<br><br>".$formatted_date;
+$new_date = date('d.m.Y', strtotime($formatted_date . ' +62 days'));
+echo "<br><br>".$new_date;
+echo "<br><br>";
+$now = time(); // Şu anki zamanı al
+$new_date_timestamp = strtotime($formatted_date) + (62 * 24 * 60 * 60); // Yeni tarihi hesapla
+$new_date = date('d.m.Y', $new_date_timestamp); // Yeni tarihi formatla
+
+// Kalan günü hesapla ve duruma göre mesaj yazdır
+$days_left = ceil(($new_date_timestamp - $now) / (24 * 60 * 60)); 
+if ($days_left == 1) {
+  echo "1 gün kaldı";
+} else {
+  echo "$days_left gün kaldı";
+}
