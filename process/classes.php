@@ -1,5 +1,5 @@
 <?php
-
+require_once('db.php');
 //login sınıfı 
 class Login {
     private $userMail;
@@ -7,13 +7,14 @@ class Login {
     private $pdo;
 
     public function __construct($userMail, $userPwd) {
+      global $dbhost, $dbname, $dbuser, $dbpwd;
         $this->userMail = $userMail;
         $this->userPwd = $userPwd;
 
         // Veritabanı bağlantısı için PDO nesnesi oluşturuyoruz.
-        $dsn = 'mysql:host=localhost;dbname=det';
-        $username = 'root';
-        $password = '';
+        $dsn = 'mysql:host=$dbhost;dbname=$dbname';
+        $username = $dbuser;
+        $password = $dbpwd;
 
         try {
           $this->pdo = new PDO($dsn, $username, $password);
@@ -58,8 +59,9 @@ class DomainTable {
     private $db; // PDO veritabanı bağlantısı
     
     public function __construct() {
+      global $dbhost, $dbname, $dbuser, $dbpwd;
       try {
-        $this->db = new PDO("mysql:host=localhost;dbname=det;charset=utf8mb4", "root", "");
+        $this->db = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpwd);
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       } catch(PDOException $e) {
         echo "Hata: " . $e->getMessage();
