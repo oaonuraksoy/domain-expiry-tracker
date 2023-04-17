@@ -19,6 +19,14 @@ class Login {
         try {
           $this->pdo = new PDO($dsn, $username, $password);
           $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+          $sql = "SHOW TABLES LIKE 'users'";
+          $stmt = $this->pdo->prepare($sql); // Burada değişiklik yapıldı
+          $stmt->execute();
+        
+          if ($stmt->rowCount() == 0) {
+              header("Location: install.php");
+              exit();
+          }
       } catch (PDOException $e) {
           // header("Location: ../install.php");
           echo $e->getMessage();

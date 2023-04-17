@@ -1,7 +1,7 @@
 <?php
 global $dbhost, $dbname, $dbuser, $dbpwd;
 $dbhost='localhost';
-$dbname='detDB_new';
+$dbname='detDB_news';
 $dbuser='root';
 $dbpwd='';
 ?>
