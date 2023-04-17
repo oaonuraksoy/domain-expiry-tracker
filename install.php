@@ -33,9 +33,9 @@ try {
     $baglanti = new PDO("mysql:host=$host;charset=utf8mb4", $kullaniciAdi, $sifre);
     $baglanti->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Veritabanı ve tabloların oluşturulması
-    $baglanti->exec("CREATE DATABASE IF NOT EXISTS $veritabaniAdi CHARACTER SET utf8mb4 COLLATE utf8mb4_turkish_ci");
-    $baglanti->exec("USE $veritabaniAdi");
+    // // Veritabanı ve tabloların oluşturulması
+    // $baglanti->exec("CREATE DATABASE IF NOT EXISTS $veritabaniAdi CHARACTER SET utf8mb4 COLLATE utf8mb4_turkish_ci");
+    // $baglanti->exec("USE $veritabaniAdi");
 
     // Users tablosunu oluştur
     $baglanti->exec("
