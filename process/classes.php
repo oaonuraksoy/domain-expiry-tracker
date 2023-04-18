@@ -105,8 +105,8 @@ class DomainTable {
             $uzanti = $this->getDomainExtension($domainName);
             $sonuc = $this->getExpirationDate($data,$uzanti);
             $date = $sonuc;
-            $domainExpiry = date('d.m.Y', strtotime($date));
-            $domainDrop = date('d.m.Y', strtotime($domainExpiry . ' +65 days'));
+            $domainExpiry = date('Y-m-d', strtotime($date));
+            $domainDrop = date('Y-m-d', strtotime($domainExpiry . ' +65 days'));
             
             $query = "INSERT INTO domains (domainName, domainExpiry, domainDrop) VALUES (:domainName, :domainExpiry, :domainDrop)";
             $stmt = $this->db->prepare($query);

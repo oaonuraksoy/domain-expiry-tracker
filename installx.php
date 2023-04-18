@@ -56,8 +56,8 @@
                     $sql = "CREATE TABLE $table_name (
                                 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                                 domainName VARCHAR(50) NOT NULL,
-                                domainExpiry VARCHAR(80) NOT NULL,
-                                domainDrop VARCHAR(80) NOT NULL
+                                domainExpiry DATE NOT NULL,
+                                domainDrop DATE NOT NULL
                             )";
                     break;
                 default:
