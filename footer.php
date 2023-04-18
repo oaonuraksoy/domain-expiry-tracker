@@ -37,7 +37,7 @@
 <!-- Page specific script -->
 <script>
 
-$(document).ready(function() {
+$(function() {
     var table = $('#DomainListTable').DataTable({
         language: {
             buttons: {
@@ -46,84 +46,76 @@ $(document).ready(function() {
             },
             search : "Ara",
             paginate: {
-                first:      "İlk",
-                previous:   "Önceki",
-                next:       "Sonraki",
-                last:       "Son"
+                first: "İlk",
+                previous: "Önceki",
+                next: "Sonraki",
+                last: "Son"
             },
-            info: "Sayfa : _PAGE_ / _PAGE_",
+            info: "Sayfa: _PAGE_ / _PAGES_",
         },
-        responsive: true, 
-        lengthChange: false, 
+        responsive: true,
+        lengthChange: false,
         autoWidth: false,
-        buttons: [ 
+        buttons: [
             {
                 text: 'Ekle',
                 className: 'btn-success',
-                action: function () {
-                    // Ekleme butonuna tıklandığında yapılacak işlemler burada olacak
-                    $('#addDomainModal').modal('show'); // Modal'ı göster
+                action: function() {
+                    $('#addDomainModal').modal('show');
                 }
             },
             "excel", "pdf", "colvis"
         ]
-    }).buttons().container().appendTo('#DomainListTable_wrapper .col-md-6:eq(0)');
-
-    
+    });
+    table.buttons().container().appendTo('#DomainListTable_wrapper .col-md-6:eq(0)');
 });
 
+$(function() {
+  var addDomainForm = $("#addDomainForm");
+  var sweetAlertSuccess = {
+    icon: 'success',
+    title: 'Başarılı!',
+    text: 'Alan adı kaydedildi.'
+  };
+  var sweetAlertError = {
+    icon: 'error',
+    title: 'Hata!',
+    text: 'Alan adı kaydedilemedi.'
+  };
 
-
-  $(document).ready(function() {
-
-  $("#addDomainForm").submit(function(event) {
-    // Prevent default form submission
+  addDomainForm.submit(function(event) {
     event.preventDefault();
-
-    // Get form data
-    var formData = $(this).serialize();
-
-    // Post data to kaydet.php using AJAX
+    var formData = addDomainForm.serialize();
     $.ajax({
       type: "POST",
       url: "/process/function.php",
       data: formData,
       success: function(response) {
-        // Check response and display appropriate message using SweetAlert
-        if (response == "true") {
-          Swal.fire({
-            icon: 'success',
-            title: 'Başarılı!',
-            text: 'Alan adı kaydedildi.',
-          }).then(function() {
-            // Reset form inputs and close modal after SweetAlert is closed
-            $('#addDomainForm').trigger("reset");
+        if (response === "true") {
+          Swal.fire(sweetAlertSuccess).then(function() {
+            addDomainForm.trigger("reset");
             $('#addDomainModal').modal('hide');
-    // Reload page
-    location.reload();
+            location.reload();
           });
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Hata!',
-            text: 'Alan adı kaydedilemedi.',
-          });
+          Swal.fire(sweetAlertError);
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
-        // Display error message using SweetAlert
-        Swal.fire({
-          icon: 'error',
-          title: 'Hata!',
-          text: 'Alan adı kaydedilemedi.',
-        });
+        Swal.fire(sweetAlertError);
       }
     });
   });
+
+  var currentPagePath = window.location.pathname;
+  var navLinks = $('.nav-link');
+  navLinks.each(function() {
+    if ($(this).attr('href') === currentPagePath) {
+      $(this).addClass('active');
+      return false;
+    }
+  });
 });
-
-
-
 
 </script>
 

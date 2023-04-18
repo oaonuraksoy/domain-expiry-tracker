@@ -48,11 +48,11 @@ $data = $domainTable->getDomainData();
           <i class="fas fa-expand-arrows-alt"></i>
         </a>
       </li>
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
           <i class="fas fa-th-large"></i>
         </a>
-      </li>
+      </li> -->
       <li class="nav-item">
         <a class="nav-link" href="process/logout.php" role="button">
         <i class="fas fa-sign-out-alt" style="color:red;"></i>
@@ -75,25 +75,29 @@ $data = $domainTable->getDomainData();
       <!-- Sidebar user (optional) -->
       <!-- Sidebar Menu -->
       <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
- 
-          <li class="nav-header">Menü</li>
-          <li class="nav-item">
-            <a href="/" class="nav-link">
- 
-              <i class="nav-icon fas fa-th-list"></i>
-              <p>
-                Alan Adları
-                <span class="badge badge-info right"><?php echo $domainTable->countDomains(); ?></span>
-              </p>
-            </a>
-          </li>
-
-          </li>
-        </ul>
-      </nav>
+    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+      
+    <li class="nav-header">Menü</li><li class="nav-item">
+        <a href="/" class="nav-link">
+          <i class="nav-icon fas fa-th-list"></i>
+          <p>
+            Alan Adları
+            <span class="badge badge-info right"><?php echo $domainTable->countDomains(); ?></span>
+          </p>
+        </a>
+     
+      </li>
+      <li class="nav-item">
+        <a href="/hakkimizda" class="nav-link">
+          <i class="nav-icon fas fa-question"></i>
+          <p>
+            Hakkımızda
+            <span class="badge badge-info right"></span>
+          </p>
+        </a>
+      </li>
+    </ul>
+  </nav>
       <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->
