@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<değişiklik_günlüğü>
+<entry>
+    <title>Güncelleme 1</title>
+    <content>
+        <text>Bu bir örnek güncellemedir.</text>
+        <linebreak />
+        <text>Yeni özellikler:</text>
+        <list>
+            <item>Yeni tema</item>
+            <item>Performans iyileştirmeleri</item>
+        </list>
+    </content>
+    <published>2023-04-19</published>
+</entry>
+</değişiklik_günlüğü>
