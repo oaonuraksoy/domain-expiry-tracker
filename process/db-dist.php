@@ -4,4 +4,5 @@ $dbhost='';
 $dbname='';
 $dbuser='';
 $dbpwd='';
+$adminMail='';
 ?>
