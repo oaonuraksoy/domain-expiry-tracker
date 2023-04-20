@@ -1,12 +1,13 @@
 <?php
+file_exists('process/db.php') ?: header('Location: installer.php') && exit();
+error_reporting(0);
+file_exists('installer.php') && rename('installer.php', 'installer.php.bak');
 session_start();
 require_once('process/function.php');
 $domainTable = new DomainTable();
 $login = new Login('', '');
 if (!$login->isLoggedIn()) header('Location: login') && exit;
-// $data = $domainTable->getDomainData();
 $data = $domainTable->getDomainData();
-
 ?> 
 
 <!DOCTYPE html>

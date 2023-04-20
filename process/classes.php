@@ -18,15 +18,7 @@ class Login {
 
         try {
           $this->pdo = new PDO($dsn, $username, $password);
-          $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-          $sql = "SHOW TABLES LIKE 'users'";
-          $stmt = $this->pdo->prepare($sql); // Burada değişiklik yapıldı
-          $stmt->execute();
-        
-          if ($stmt->rowCount() == 0) {
-              header("Location: install.php");
-              exit();
-          }
+          $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);          
       } catch (PDOException $e) {
           // header("Location: ../install.php");
           echo $e->getMessage();
@@ -136,17 +128,7 @@ class DomainTable {
     // buraya
 
     public function getDomainExtension($domainName) {
-        // alan adını noktalara göre ayırıyoruz
-        // $parts = explode('.', $domainName);
-    
-        // // uzantıyı belirliyoruz
-        // if (count($parts) > 1 && end($parts) == 'tr') {
-        //   $extension = $parts[count($parts) - 2] . '.' . end($parts);
-        // } else {
-        //   $extension = end($parts);
-        // }
-    
-        // return $extension;
+
         $parts = explode('.', $domainName);
         return end($parts);
     }

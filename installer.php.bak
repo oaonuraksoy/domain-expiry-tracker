@@ -1,4 +1,22 @@
 <?php 
+    if (isset($_POST["kaydet"])) {
+$dbhost = $_POST['dbhost'] ?? '';
+$dbname = $_POST['dbname'] ?? '';
+$dbuser = $_POST['dbuser'] ?? '';
+$dbpwd = $_POST['dbpwd'] ?? '';
+$adminMail = $_POST['userMail'] ?? '';
+
+$content = "<?php\n";
+$content .= "global \$dbhost, \$dbname, \$dbuser, \$dbpwd;\n";
+$content .= "\$dbhost='$dbhost';\n";
+$content .= "\$dbname='$dbname';\n";
+$content .= "\$dbuser='$dbuser';\n";
+$content .= "\$dbpwd='$dbpwd';\n";
+$content .= "\$adminMail='$adminMail';\n";
+$content .= "?>";
+
+file_put_contents('process/db.php', $content);
+
     require_once('process/db.php');
 
     try {
@@ -12,27 +30,11 @@
     }
     
     //test
-    if (isset($_POST["kaydet"])) {
-        try {
-            $userMail = $_POST['userMail'];
-            $userPwd = md5($_POST['userPwd']);
+
+
     
-            $sql = "INSERT INTO users (userMail, userPwd) VALUES (:userMail, :userPwd)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':userMail', $userMail);
-            $stmt->bindParam(':userPwd', $userPwd);
-            $stmt->execute();
-    
-            // kullanıcı eklendikten sonra index.php'ye yönlendir
-            header('Location: index.php');
-            exit;
-        }
-        catch(PDOException $e) {
-            echo "Bağlantı hatası: " . $e->getMessage();
-        }
-    
-        $conn = null;
-    }
+
+
     //test
     $table_name = "users";
     $stmt = $conn->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '$dbname') AND (TABLE_NAME = '$table_name')");
@@ -75,7 +77,29 @@
             //echo "Tablo zaten var: " . $table_name . "<br>";
         }
     }
+    try {
+        $userMail = $_POST['userMail'];
+        $userPwd = md5($_POST['userPwd']);
+
+        $sql = "INSERT INTO users (userMail, userPwd) VALUES (:userMail, :userPwd)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':userMail', $userMail);
+        $stmt->bindParam(':userPwd', $userPwd);
+        $stmt->execute();
+
+        // kullanıcı eklendikten sonra index.php'ye yönlendir
+       
+    }
+    catch(PDOException $e) {
+        echo "Bağlantı hatası: " . $e->getMessage();
+    }
+    $conn = null;
+    header('Location: index.php');
+    exit;
+}
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -110,21 +134,46 @@
                 <div class="col-5 text-center d-flex align-items-center justify-content-center">
                     <div class="">
                         <h2>DET<strong> Installer</strong></h2>
-                        <p class="lead mb-5">Lütfen Kullanıcı Oluşturun.
+                        <p class="lead mb-5">Hoş Geldiniz. <br> 
                         </p>
                     </div>
                 </div>
                 <div class="col-7">
                     <form action="" method="post">
-                        <h5>Hoşgeldiniz</h5>
+                    <br><br><br>        <br><br><br>
+                    <h3>Veritabanı bilgileri</h3>
+            
+                        <p>Aşağıdaki formla hızlıca veritabanı bağlantınızı yaparak <br>gerekli olan tabloları oluşturabilirsiniz</p>
+                        <div class="form-group">
+                            <label for="dbhost">Veritabanı Sunucusu</label>
+                            <input type="text" name="dbhost" class="form-control" placeholder="localhost" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dbname">Veritabanı Adı</label>
+                            <input type="text" name="dbname" class="form-control" placeholder="detDB" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dbuser">Veritabanı Kullanıcı Adı</label>
+                            <input type="text" name="dbuser" class="form-control" placeholder="root" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dbpwd">Veritabanı Kullanıcı Şİfresi</label>
+                            <input type="text" name="dbpwd" class="form-control" placeholder="****">
+                        </div>
+
+
+
+
+
+                        <h5>Kullanıcı Oluştur</h5>
                         <p>Aşağıdaki formla hızlıca kullanıcı oluşturarak kurulumu tamamlayabilirsiniz</p>
                         <div class="form-group">
                             <label for="userMail">E-Posta Adresi</label>
-                            <input type="mail" name="userMail" class="form-control">
+                            <input type="mail" name="userMail" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label for="userPwd">Şifreniz</label>
-                            <input type="password" name="userPwd" class="form-control">
+                            <input type="password" name="userPwd" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <input type="submit" name="kaydet" class="btn btn-success" value="Kaydet">

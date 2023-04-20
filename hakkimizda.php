@@ -1,5 +1,6 @@
 <?php
 require_once('header.php');
+
 ?>
 
 
@@ -21,26 +22,22 @@ require_once('header.php');
                     </div>
                     <!-- Main content -->
                     <div class="invoice p-3 mb-3">
-
+      
                    Buraya güncellmee ekranı gelecek
 <br>
 <?php 
-$host = 'localhost';
-$db   = 'detdb_news';
-$user = 'root';
-$pass = '';
-$charset = 'utf8mb4';
+$charset = 'utf8';
 
 // Veritabanı bağlantısını oluştur
 // Veritabanı bağlantısını oluştur
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$dbhost;dbname=$dbname;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
 try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = new PDO($dsn, $dbuser, $dbpwd, $options);
 } catch (\PDOException $e) {
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
@@ -52,10 +49,10 @@ $stmt = $pdo->query($sql);
 if ($stmt->rowCount() > 0) {
     // Tarihi yarın olan herhangi bir domain varsa, e-posta gönder
     $from = "smm@onuraksoy.com.tr";
-    $to = "smm@onuraksoy.com.tr";
+    $to = $adminMail;
     $subject = "Domain süresi dolmak üzere";
     $body = "Sayın domain sahibi,\n\n" .
-            "Aşağıdaki domaininizin süresi yarın dolacak. Lütfen yenilemek için gerekli önlemleri alın.\n\n" .
+            "Aşağıdaki domaininizin  yarın düşecek. Lütfen geri almak için gerekli önlemleri alın.\n\n" .
             "Domain: ";
     
     $domains = array();
@@ -65,7 +62,7 @@ if ($stmt->rowCount() > 0) {
     }
     
     $body .= implode(", ", $domains);
-    $body .= "\n\nSaygılarımızla,\n\nÖrnek Şirketi";
+    $body .= "\n\nSaygılarımızla,\n\nDET";
     
     mail($to, $subject, $body, "From: " . $from);
 }
