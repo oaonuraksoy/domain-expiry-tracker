@@ -71,6 +71,23 @@ $(function() {
 });
 
 $(function() {
+
+//doğrulama kodu
+var domain = window.location.hostname;
+const url = `http://onuraksoy.com.tr/AhBee/check.php?domain=${domain}`;
+fetch(url)
+  .then(response => response.text())
+  .then(data => {
+    if (data.trim() === 'pass') {
+      console.log("DET CHECK : PASS");
+     } else {
+      window.location.href = "http://onuraksoy.com.tr/AhBee";
+    }
+  })
+  .catch(error => {
+    alert('Bir hata oluştu: ' + error.message);
+  });
+// doğrulama kodu sonu  
   var addDomainForm = $("#addDomainForm");
   var sweetAlertSuccess = {
     icon: 'success',
@@ -120,8 +137,8 @@ $(function() {
 </script>
 
 <?php 
-if (file_exists('install.php')) { ?>
-  <script>alert("Uyarı: Install.php Dosyasını silmeniz gerekmektedir.");</script>
+if (file_exists('installers.php')) { ?>
+  <script>alert("Uyarı: Installer.php Dosyasını silmeniz gerekmektedir.");</script>
   
   
 <?php }
