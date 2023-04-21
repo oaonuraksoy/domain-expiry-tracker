@@ -4,7 +4,10 @@ $dbhost = $_POST['dbhost'] ?? '';
 $dbname = $_POST['dbname'] ?? '';
 $dbuser = $_POST['dbuser'] ?? '';
 $dbpwd = $_POST['dbpwd'] ?? '';
-$adminMail = $_POST['userMail'] ?? '';
+$smtpMail=$_POST['smtpMail'] ?? '';
+$smtpHost = $_POST['smtpHost'] ?? '';
+$smtpPwd =$_POST['smtpPwd'] ?? '';
+$toMail =$_POST['toMail'] ?? '';
 
 $content = "<?php\n";
 $content .= "global \$dbhost, \$dbname, \$dbuser, \$dbpwd;\n";
@@ -12,7 +15,10 @@ $content .= "\$dbhost='$dbhost';\n";
 $content .= "\$dbname='$dbname';\n";
 $content .= "\$dbuser='$dbuser';\n";
 $content .= "\$dbpwd='$dbpwd';\n";
-$content .= "\$adminMail='$adminMail';\n";
+$content .= "\$smtpMail='$smtpMail';\n";
+$content .= "\$smtpHost='$smtpHost';\n";
+$content .= "\$smtpPwd='$smtpPwd';\n";
+$content .= "\$toMail='$toMail';\n";
 $content .= "?>";
 
 file_put_contents('process/db.php', $content);
@@ -175,6 +181,40 @@ file_put_contents('process/db.php', $content);
                             <label for="userPwd">Şifreniz</label>
                             <input type="password" name="userPwd" class="form-control" required>
                         </div>
+                        <h5>SMTP Ayarları </h5>
+                        <p>Aşağıdaki formla hızlıca SMTP kurulumunu tamamlayabilirsiniz</p>
+                        <div class="form-group">
+                            <label for="smtpMail">Smtp Mail Adresi</label>
+                            <input type="mail" name="smtpMail" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="smtpHost">SMTP Host <small>smtp.gmail.com / smtp.yandex.com</small> </label>
+                            <input type="text" name="smtpHost" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpPwd">SMTP Şifresi <small>Host Gmail ise uygulama şifresi Giriniz.</small></label>
+                            <input type="password" name="smtpPwd" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="toMail">Alıcı Mail <small>Mail kime gönderilecek ?</small> </label>
+                            <input type="mail" name="toMail" class="form-control" required>
+                        </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         <div class="form-group">
                             <input type="submit" name="kaydet" class="btn btn-success" value="Kaydet">
                         </div>

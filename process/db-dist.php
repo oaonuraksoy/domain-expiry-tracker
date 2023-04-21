@@ -4,5 +4,8 @@ $dbhost='';
 $dbname='';
 $dbuser='';
 $dbpwd='';
-$adminMail='';
+$smtpMail='';
+$smtpHost = '';
+$smtpPwd ='';
+$toMail = '';
 ?>
