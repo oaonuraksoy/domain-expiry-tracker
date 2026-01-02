@@ -2,7 +2,7 @@
 
 require_once 'classes.php';
 if (isset($_POST['Login'])) {
-    $login = new Login($_POST['userMail'],  md5($_POST['userPwd'])              );
+    $login = new Login($_POST['userMail'], $_POST['userPwd']);
     if ($login->authenticate()) {
         // Kullanıcı doğrulandı, yönlendirme yapılabilir veya başka bir işlem yapılabilir.        
       //  echo "giriş yapıldı";
@@ -16,7 +16,9 @@ if (isset($_POST['Login'])) {
 if (isset($_POST['domainName'])) {
     $DomainTable = new DomainTable();
     $DomainTable->addDomain($_POST['domainName']);
-  }
+    header('Location: /');
+    exit;
+}
 
   if (isset($_GET['del'])) {
 try {

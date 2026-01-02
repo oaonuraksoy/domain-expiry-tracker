@@ -6,7 +6,7 @@ class Login {
     private $userPwd;
     private $pdo;
 
-    public function __construct($userMail, $userPwd) {
+    public function __construct($userMail, $userPwd = null) {
       global $dbhost, $dbname, $dbuser, $dbpwd;
         $this->userMail = $userMail;
         $this->userPwd = $userPwd;
@@ -27,16 +27,18 @@ class Login {
     }
 
     public function authenticate() {
-        // Kullanıcının doğrulanması için veritabanına sorgu yapacağız.
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE userMail = :userMail AND userPwd = :userPwd");
+        // Kullanıcının e-posta adresine göre verileri çekiyoruz.
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE userMail = :userMail");
         $stmt->bindParam(':userMail', $this->userMail);
-        $stmt->bindParam(':userPwd', $this->userPwd);
         $stmt->execute();
 
-        // Kullanıcı verileri eşleşirse, oturum açıyoruz.
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($user) {
-            session_start();
+        
+        // Kullanıcı bulundu mu ve şifre doğrulanıyor mu?
+        if ($user && password_verify($this->userPwd, $user['userPwd'])) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['userMail'] = $user['userMail'];
             return true;
@@ -57,206 +59,156 @@ class Login {
 //login sınıfı sonu
 
 class DomainTable {
-    private $db; // PDO veritabanı bağlantısı
-    
+    private ?PDO $db;
+
     public function __construct() {
-      global $dbhost, $dbname, $dbuser, $dbpwd;
-      try {
-        $this->db = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpwd);
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      } catch(PDOException $e) {
-        echo "Hata: " . $e->getMessage();
-      }
-    }
-    public function countDomains() {
+        global $dbhost, $dbname, $dbuser, $dbpwd;
         try {
-            $stmt = $this->db->query("SELECT COUNT(*) FROM domains");
-            $count = $stmt->fetchColumn();
-            return $count;
+            $this->db = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpwd);
+            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            echo 'Hata: ' . $e->getMessage();
+            $this->db = null;
+            error_log("Connection Error: " . $e->getMessage());
         }
     }
-    public function getDomainData() {
-      try {
-        // domains tablosundan verileri seçin
-        $query = "SELECT * FROM domains";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return $result;
-        
-      } catch(PDOException $e) {
-        echo "Hata: " . $e->getMessage();
-      }
-    }
-    public function addDomain($domainName) {
+
+    public function countDomains(): int {
         try {
-            $data= $this->getWhoisData($domainName);
-            $uzanti = $this->getDomainExtension($domainName);
-            $sonuc = $this->getExpirationDate($data,$uzanti);
-            $date = $sonuc;
-            $domainExpiry = date('Y-m-d', strtotime($date));
+            $stmt = $this->db->query("SELECT COUNT(*) FROM domains");
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
+
+    public function getDomainData(): array {
+        try {
+            $query = "SELECT * FROM domains ORDER BY domainExpiry ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function addDomain(string $domainName): bool {
+        try {
+            $domainName = strtolower(trim($domainName));
+            $whoisData = $this->getWhoisData($domainName);
+            $extension = $this->getDomainExtension($domainName);
+            $expiryDateStr = $this->getExpirationDate($whoisData, $extension);
+
+            if ($expiryDateStr === 'Expiration date not found' || $expiryDateStr === 'Extension not supported') {
+                return false;
+            }
+
+            $domainExpiry = date('Y-m-d', strtotime($expiryDateStr));
             $domainDrop = date('Y-m-d', strtotime($domainExpiry . ' +65 days'));
-            
+
             $query = "INSERT INTO domains (domainName, domainExpiry, domainDrop) VALUES (:domainName, :domainExpiry, :domainDrop)";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':domainName', $domainName);
             $stmt->bindParam(':domainExpiry', $domainExpiry);
             $stmt->bindParam(':domainDrop', $domainDrop);
-            $stmt->execute();
-            echo "true";
-        } catch(PDOException $e) {
-            echo "Hata: " . $e->getMessage();
-        }
-    }
-    public function deleteDomain($domainId) {
-        try {
-            $query = "DELETE FROM domains WHERE id = :id";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':id', $domainId);
-            $stmt->execute();
-            return true;
-        } catch(PDOException $e) {
-            echo "Hata: " . $e->getMessage();
+            return $stmt->execute();
+        } catch (PDOException $e) {
             return false;
         }
     }
-    
 
-    // buraya
-
-    public function getDomainExtension($domainName) {
-
-        $parts = explode('.', $domainName);
-        return end($parts);
-    }
-    
-    public function getWhoisServer($extension){
-    
-        switch ($extension) {
-            case 'com':
-            case 'net':
-              return 'whois.verisign-grs.com';
-            case 'org':
-              return 'whois.pir.org';
-            case 'biz':
-              return 'whois.biz';
-            case 'info':
-              return 'whois.afilias.net';
-            case 'us':
-              return 'whois.nic.us';
-            case 'uk':
-              return 'whois.nic.uk';
-            case 'ca':
-              return 'whois.cira.ca';
-            case 'au':
-              return 'whois.ausregistry.net.au';
-            case 'de':
-              return 'whois.denic.de';
-            case 'fr':
-              return 'whois.nic.fr';
-            case 'it':
-              return 'whois.nic.it';
-            case 'nl':
-              return 'whois.domain-registry.nl';
-            case 'se':
-              return 'whois.iis.se';
-            case 'no':
-              return 'whois.norid.no';
-            case 'edu':
-              return 'whois.educause.edu';
-            case 'mil':
-              return 'whois.nic.mil';
-            case 'arpa':
-              return 'whois.iana.org';
-            case 'tr':
-                return 'whois.nic.tr';
-            default:
-              return 'whois.iana.org';
+    public function deleteDomain(int $domainId): bool {
+        try {
+            $query = "DELETE FROM domains WHERE id = :id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':id', $domainId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
         }
     }
-    
- 
-public function getWhoisData($domainName) {
-    // domain uzantısını belirle
-    $domainExtension = $this->getDomainExtension($domainName);
 
-    // uygun whois sunucusunu belirle
-    switch ($domainExtension) {
-        case 'com':
-        case 'net':
-            $whoisServer = 'whois.verisign-grs.com';
-            break;
-        case 'org':
-            $whoisServer = 'whois.pir.org';
-            break;
-        case 'biz':
-            $whoisServer = 'whois.biz';
-            break;
-        case 'tr':
-            $whoisServer = 'whois.nic.tr';
-            break;
-        default:
-            return 'Extension not supported';
+    public function getDomainExtension(string $domainName): string {
+        $parts = explode('.', $domainName);
+        return strtolower(end($parts));
     }
 
-    // whois sunucusuna bağlan
-    $fp = fsockopen($whoisServer, 43, $errno, $errstr, 10);
-    if (!$fp) {
-        return "Connection error: $errno - $errstr";
+    public function getWhoisServer(string $extension): string {
+        $servers = [
+            'com' => 'whois.verisign-grs.com',
+            'net' => 'whois.verisign-grs.com',
+            'org' => 'whois.pir.org',
+            'info' => 'whois.afilias.net',
+            'biz' => 'whois.nic.biz',
+            'us' => 'whois.nic.us',
+            'uk' => 'whois.nic.uk',
+            'ca' => 'whois.cira.ca',
+            'tr' => 'whois.nic.tr',
+            'de' => 'whois.denic.de',
+            'fr' => 'whois.nic.fr',
+            'it' => 'whois.nic.it',
+            'nl' => 'whois.domain-registry.nl',
+            'io' => 'whois.nic.io',
+            'me' => 'whois.nic.me',
+            'co' => 'whois.nic.co',
+            'tv' => 'whois.nic.tv',
+        ];
+        return $servers[$extension] ?? 'whois.iana.org';
     }
 
-    // whois sorgusunu yap
-    fwrite($fp, "$domainName\r\n");
+    public function getWhoisData(string $domainName): string {
+        $extension = $this->getDomainExtension($domainName);
+        $whoisServer = $this->getWhoisServer($extension);
 
-    // cevabı al
-    $result = '';
-    while (!feof($fp)) {
-        $result .= fgets($fp, 128);
+        if ($whoisServer === 'whois.iana.org') {
+            $ianaData = $this->queryWhois('whois.iana.org', $domainName);
+            if (preg_match('/refer: (.*)\n/', $ianaData, $matches)) {
+                $whoisServer = trim($matches[1]);
+            }
+        }
+
+        return $this->queryWhois($whoisServer, $domainName);
     }
 
-    // bağlantıyı kapat
-    fclose($fp);
-
-    return $result;
-}
-
-
-
-
-public function getExpirationDate($whoisData, $extension) {
-    switch ($extension) {
-        case 'com':
-        case 'net':
-            if (preg_match('/Registry Expiry Date: (.*)\n/', $whoisData, $matches)) {
-                return $matches[1];
-            } else {
-                return 'Expiration date not found';
-            }
-        case 'org':
-            if (preg_match('/Registry Expiry Date: (.*)\n/', $whoisData, $matches)) {
-                return $matches[1];
-            } else {
-                return 'Expiration date not found';
-            }
-        case 'biz':
-            if (preg_match('/Domain Expiration Date: (.*)\n/', $whoisData, $matches)) {
-                return $matches[1];
-            } else {
-                return 'Expiration date not found';
-            }
-        case 'tr':
-            if (preg_match('/Expires on\.+:(.*)\n/', $whoisData, $matches)) {
-                return $matches[1];
-            } else {
-                return 'Expiration date not found';
-            }
-        default:
-            return 'Extension not supported';
+    private function queryWhois(string $server, string $domain): string {
+        $fp = @fsockopen($server, 43, $errno, $errstr, 5);
+        if (!$fp) return "";
+        
+        if ($server === 'whois.denic.de') {
+            fwrite($fp, "-T dn,ace $domain\r\n");
+        } else {
+            fwrite($fp, "$domain\r\n");
+        }
+        
+        $result = '';
+        while (!feof($fp)) {
+            $result .= fgets($fp, 128);
+        }
+        fclose($fp);
+        return $result;
     }
-}
+
+    public function getExpirationDate(string $whoisData, string $extension): string {
+        $patterns = [
+            '/Registry Expiry Date: (.*)/i',
+            '/Expiry Date: (.*)/i',
+            '/Expiration Date: (.*)/i',
+            '/Expires on\.+:(.*)/i',
+            '/Record expires on (.*)/i',
+            '/free-date: (.*)/i',
+            '/Expiration Time: (.*)/i',
+            '/renewal date: (.*)/i',
+            '/Valid-until: (.*)/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $whoisData, $matches)) {
+                return trim($matches[1]);
+            }
+        }
+
+        return 'Expiration date not found';
+    }
 
 
 

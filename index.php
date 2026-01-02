@@ -30,6 +30,11 @@ require_once('header.php');
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Takipteki alan adlarınız</h3>
+                 <div class="card-tools">
+                  <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDomainModal">
+                    <i class="fas fa-plus"></i> Yeni Ekle
+                  </button>
+                </div>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -38,122 +43,42 @@ require_once('header.php');
                   <tr>
                     <th style="width: 35px !important;">Sıra</th>
                     <th>Alan Adı</th>
-                    <th>Son Kullanma Tarihi</th>
+                    <th>Bitiş Tarihi</th>
                     <th>Düşme Tarihi</th>
+                    <th>Kalan Gün</th>
                     <th style="width: 35px !important;">Eylem</th>
                   </tr>
                   </thead>
                   <tbody>
-
-
-
-               <?php $s=1;  foreach ($data as $row) { ?>
-
- 
-
-                  <tr>
-                    <td ><?php echo $s; ?></td>
-                    <td><?php echo $row['domainName']; ?>
-                    </td>
-                    <td><?php echo $row['domainExpiry']; ?></td>
-                    <td> <?php echo $row['domainDrop']; ?></td>
-                    <td><a  class="btn btn-danger"  style="font-size:8pt;" href="process/function.php?del&dn=<?php echo $row['id']; ?>"> <i class="fas fa-trash"></i></a></td>
-                  </tr>
-                
-<?php $s++; } ?>
-
-
-
-
-
-
-
-
-
-
-
+                  <?php 
+                  $s=1; 
+                  $today = new DateTime();
+                  foreach ($data as $row) { 
+                    $expiry = new DateTime($row['domainExpiry']);
+                    $interval = $today->diff($expiry);
+                    $daysLeft = (int)$interval->format('%r%a');
+                    $badgeClass = ($daysLeft < 30) ? 'badge-danger' : (($daysLeft < 60) ? 'badge-warning' : 'badge-success');
+                  ?>
+                    <tr>
+                      <td><?php echo $s; ?></td>
+                      <td><b><?php echo htmlspecialchars($row['domainName']); ?></b></td>
+                      <td><?php echo date('d.m.Y', strtotime($row['domainExpiry'])); ?></td>
+                      <td><?php echo date('d.m.Y', strtotime($row['domainDrop'])); ?></td>
+                      <td><span class="badge <?php echo $badgeClass; ?>"><?php echo $daysLeft; ?> gün</span></td>
+                      <td>
+                        <a class="btn btn-danger btn-sm" href="process/function.php?del&dn=<?php echo $row['id']; ?>" onclick="return confirm('Emin misiniz?')"> 
+                          <i class="fas fa-trash"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  <?php $s++; } ?>
                   </tbody>
-
                 </table>
- </div>
+              </div>
               <!-- /.card-body -->
             </div>
             <!-- /.card -->
           </div>
-          
-
-
-
-
-
-<!-- burdan -->
-
-<br>
-<br>
-
-<!-- <form action="/process/function.php" method="post">
-
-          <div class="form-group">
-            <label for="domainName">Alan Adı</label>
-            <input type="text" class="form-control" id="domainName" name="domainName" required>
-          </div>
-          <div class="form-group">
-        <input type="submit" class="btn btn-success" id="addDomainButton"></input>
-      </div>
-
-
-</form> -->
-
-
-<?php 
-
-
-
-
-
-// $domain = "onuraksoy.com.tr";
-
-// echo $data= $domainTable->getWhoisData($domain);
-
-// echo "<br><br>".$uzanti = $domainTable->getDomainExtension($domain);
-// echo "<br><br>".$sonuc = $domainTable->getExpirationDate($data,$uzanti);
-// $date = $sonuc;
-// $formatted_date = date('d.m.Y', strtotime($date));
-// echo "<br><br>".$formatted_date;
-// $new_date = date('d.m.Y', strtotime($formatted_date . ' +62 days'));
-// echo "<br><br>".$new_date;
-// echo "<br><br>";
-// $now = time(); // Şu anki zamanı al
-// $new_date_timestamp = strtotime($formatted_date) + (62 * 24 * 60 * 60); // Yeni tarihi hesapla
-// $new_date = date('d.m.Y', $new_date_timestamp); // Yeni tarihi formatla
-
-// // Kalan günü hesapla ve duruma göre mesaj yazdır
-// $days_left = ceil(($new_date_timestamp - $now) / (24 * 60 * 60)); 
-// if ($days_left == 1) {
-//   echo "1 gün kaldı";
-// } else {
-//   echo "$days_left gün kaldı";
-// }
-
-
-?>
-<!-- Buraya -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          <!-- /.col -->
         </div>
         <!-- /.row -->
       </div>
@@ -163,11 +88,6 @@ require_once('header.php');
   </div>
   <!-- /.content-wrapper -->
 
-
-
-
-
-  <!-- test -->
 <!-- Modal -->
 <div class="modal fade" id="addDomainModal" tabindex="-1" role="dialog" aria-labelledby="addDomainModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -179,20 +99,20 @@ require_once('header.php');
         </button>
       </div>
       <div class="modal-body">
-        <form id="addDomainForm">
+        <form action="process/function.php" method="POST">
           <div class="form-group">
             <label for="domainName">Alan Adı</label>
-            <input type="text" class="form-control" id="domainName" name="domainName" required>
+            <input type="text" class="form-control" id="domainName" name="domainName" placeholder="orn: google.com" required>
           </div>
-          <div class="form-group">
-        <input type="submit" class="btn btn-success" id="addDomainButton"></input>
-      </div>
+          <div class="form-group text-right">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+            <button type="submit" class="btn btn-success">Ekle</button>
+          </div>
         </form>
       </div>
-      
     </div>
   </div>
 </div>
-  <?php
+<?php
 require_once('footer.php');
 ?> 
